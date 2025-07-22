@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Summary</title>
+    
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .order-summary { max-width: 800px; margin: 0 auto; border: 1px solid #ddd; padding: 20px; border-radius: 5px; }
+        .order-items { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .order-items th, .order-items td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .order-items th { background-color: #f2f2f2; }
+        .total-section { text-align: right; margin-top: 20px; font-size: 18px; font-weight: bold; }
+        .action-buttons { display: flex; justify-content: space-between; margin-top: 30px; }
+        .action-buttons button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        .back-btn { background-color: #f4a261; color: white; }
+        .print-btn { background-color: #2a9d8f; color: white; }
+        .complete-btn { background-color: #e63946; color: white; }
+        .reset-btn { background-color: #6c757d; color: white; }
+
+    
+        @media print {
+            .action-buttons, .qr-section, img[alt="Shop Logo"] { display: none; }
+            body { margin: 0; padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Logo -->
+    <img src="your-logo.png" alt="Shop Logo" style="display:block; margin: 0 auto 20px; max-height: 100px;">
+
+    <div class="order-summary" id="orderSummary">
+        <h1>IMC STORE</h1>
+        <table class="order-items">
+            <thead>
+                <tr><th>Product</th><th>Price</th><th>Quantity</th><th>Subtotal</th></tr>
+            </thead>
+            <tbody id="orderItems"></tbody>
+        </table>
+        <div class="total-section">
+            Total: $<span id="totalAmount">0.00</span>
+        </div>
+
+        <div class="action-buttons">
+        <button class="back-btn" onclick="window.location.href='index.html'">Back</button>
+        <button class="print-btn" onclick="window.print()">Print Receipt</button>
+        <button class="complete-btn" onclick="completeSale()">Complete Sale</button>
+        <button class="complete-btn" onclick="resetOrder()">Reset Order</button>
+    </div>
+
+
+        <!-- QR Codes Section -->
+        <div class="qr-section" style="display: flex; justify-content: space-around; margin-top: 40px;">
+            <div style="text-align: center;">
+                <p>Pay with App A</p>
+                <img src="qr1.png" alt="QR Code 1" style="max-width: 150px;">
+            </div>
+            <div style="text-align: center;">
+                <p>Pay with App B</p>
+                <img src="qr2.png" alt="QR Code 2" style="max-width: 150px;">
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const orderItems = document.getElementById('orderItems');
+    const totalAmount = document.getElementById('totalAmount');
+
+    let total = 0;
+
+    if (cart.length === 0) {
+        orderItems.innerHTML = '<tr><td colspan="4" style="text-align: center;">Your cart is empty</td></tr>';
+    } else {
+        cart.forEach(item => {
+            const subtotal = item.price * item.quantity;
+            total += subtotal;
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td>$${item.price.toFixed(2)}</td>
+                <td>${item.quantity}</td>
+                <td>$${subtotal.toFixed(2)}</td>
+            `;
+            orderItems.appendChild(row);
+        });
+        totalAmount.textContent = total.toFixed(2);
+    }
+
+    function completeSale() {
+        const now = new Date();
+        const saleData = {
+            date: now.toISOString().split('T')[0],
+            month: now.getMonth() + 1,
+            year: now.getFullYear(),
+            items: cart,
+            total: total
+        };
+
+        let salesHistory = JSON.parse(localStorage.getItem('salesHistory')) || [];
+        salesHistory.push(saleData);
+        localStorage.setItem('salesHistory', JSON.stringify(salesHistory));
+
+        localStorage.setItem('cart', JSON.stringify([]));
+        alert('Sale completed! Data saved.');
+        window.location.href = 'index.html';
+    }
+
+    // ✅ FIXED: moved outside of completeSale
+    function resetOrder() {
+        if (confirm('Are you sure you want to reset the order?')) {
+            localStorage.setItem('cart', JSON.stringify([]));
+            location.reload(); // or use window.location.href = 'index.html';
+        }
+    }
+</script>
+
+</body>
+</html>

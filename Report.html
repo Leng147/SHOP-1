@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Log</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .reset-btn {
+            background-color: #e63946;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #999;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <h1>Sales History </h1>
+        <button class="reset-btn" onclick="resetSales()">Reset Log</button>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody id="salesTable">
+            <!-- Sales data will be inserted here -->
+        </tbody>
+    </table>
+
+    <script>
+        const salesHistory = JSON.parse(localStorage.getItem('salesHistory')) || [];
+        const salesTable = document.getElementById('salesTable');
+
+        if (salesHistory.length === 0) {
+            salesTable.innerHTML = '<tr><td colspan="5" style="text-align:center;">No sales recorded</td></tr>';
+        } else {
+            salesHistory.forEach(sale => {
+                sale.items.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${sale.date}</td>
+                        <td>${item.name}</td>
+                        <td>$${item.price.toFixed(2)}</td>
+                        <td>${item.quantity}</td>
+                        <td>$${(item.price * item.quantity).toFixed(2)}</td>
+                    `;
+                    salesTable.appendChild(row);
+                });
+            });
+        }
+
+        function resetSales() {
+            if (confirm("Are you sure you want to reset the sales log?")) {
+                localStorage.removeItem('salesHistory');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

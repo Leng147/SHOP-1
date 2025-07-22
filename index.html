@@ -1,0 +1,140 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Selection</title>
+    <button class="next-btn Report-btn" onclick="goToReport()">Report</button>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .product-card img {
+            max-width: 100%;
+            height: 150px;
+            object-fit: contain;
+        }
+        .product-card h3 {
+            margin: 10px 0;
+        }
+        .product-card .price {
+            font-weight: bold;
+            color: #e63946;
+            margin: 10px 0;
+        }
+        .product-card input[type="number"] {
+            width: 60px;
+            margin-bottom: 10px;
+        }
+        .product-card button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .next-btn {
+            position: fixed;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #2a9d8f;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .review-btn {
+            bottom: 20px;
+        }
+        .page3-btn {
+            bottom: 70px;
+        }
+    </style>
+</head>
+<body>
+    <h1>IMC STORE</h1>
+    <div class="products" id="productContainer">
+        <!-- Products will be loaded here by JavaScript -->
+    </div>
+
+    <!-- Buttons -->
+    <button class="next-btn review-btn" onclick="goToCheckout()">Review Order</button>
+    
+
+    <script>
+        const products = [
+            { id: 1, name: "Wireless Headphones", price: 59.99, image: "https://via.placeholder.com/150?text=Headphones" },
+            { id: 2, name: "Smart Watch", price: 129.99, image: "https://via.placeholder.com/150?text=Smart+Watch" },
+            { id: 3, name: "Bluetooth Speaker", price: 39.99, image: "https://via.placeholder.com/150?text=Speaker" },
+            { id: 4, name: "Phone Charger", price: 15.99, image: "https://via.placeholder.com/150?text=Charger" },
+            { id: 5, name: "Laptop Backpack", price: 45.99, image: "https://via.placeholder.com/150?text=Backpack" },
+            { id: 6, name: "Wireless Mouse", price: 24.99, image: "https://via.placeholder.com/150?text=Mouse" }
+        ];
+
+        if (!localStorage.getItem('cart')) {
+            localStorage.setItem('cart', JSON.stringify([]));
+        }
+
+        const productContainer = document.getElementById('productContainer');
+        
+        products.forEach(product => {
+            const productCard = document.createElement('div');
+            productCard.className = 'product-card';
+            productCard.innerHTML = `
+                <img src="${product.image}" alt="${product.name}">
+                <h3>${product.name}</h3>
+                <div class="price">$${product.price.toFixed(2)}</div>
+                <input type="number" id="qty-${product.id}" value="0" min="0">
+                <br>
+                <button onclick="addToCart(${product.id})">Add to Cart</button>
+            `;
+            productContainer.appendChild(productCard);
+        });
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const qtyInput = document.getElementById(`qty-${productId}`);
+            const quantity = parseInt(qtyInput.value) || 0;
+
+            if (quantity <= 0) return;
+
+            let cart = JSON.parse(localStorage.getItem('cart'));
+            const existingItem = cart.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    quantity: quantity
+                });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert(`${product.name} (x${quantity}) added to cart!`);
+        }
+
+        function goToCheckout() {
+            window.location.href = 'checkout.html'; // Page 2
+        }
+
+        function goToReport() {
+            window.location.href = 'Report.html'; // Page 3 (sales history)
+        }
+    </script>
+</body>
+</html>
